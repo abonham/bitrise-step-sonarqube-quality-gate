@@ -1,6 +1,9 @@
 #!/bin/bash
-set -eux
+set -e
+[[ "$is_debug" -eq "true" ]] && set -ux
+
 BRANCH=${BITRISE_GIT_BRANCH-`git branch --show-current`}
+
 if [ -d "./.scannerwork" ]
 then
 	pushd .scannerwork
