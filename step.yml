@@ -1,0 +1,99 @@
+#
+# A couple of useful guides & docs:
+#
+# - Main Bitrise CLI docs: https://github.com/bitrise-io/bitrise/tree/master/_docs
+# - Step Development Guideline: https://github.com/bitrise-io/bitrise/blob/master/_docs/step-development-guideline.md
+# - Bitrise.yml format spec: https://github.com/bitrise-io/bitrise/blob/master/_docs/bitrise-yml-format-spec.md
+# - Bitrise docs: http://devcenter.bitrise.io/
+# - Bitrise CLI guides: http://devcenter.bitrise.io/bitrise-cli/
+
+title: |-
+  SonarQube Quality Gate
+summary: |
+  Check SonarQube Quality gate, fail the build if it didn't pass
+description: |
+  Check SonarQube Quality gate, fail the build if it didn't pass
+website: https://github.com/abonham/bitrise-step-sonarqube-quality-gate
+source_code_url: https://github.com/abonham/bitrise-step-sonarqube-quality-gate
+support_url: https://github.com/abonham/bitrise-step-sonarqube-quality-gate/issues
+host_os_tags:
+  - osx-10.10
+  - ubuntu-16.04
+
+# If this step should be available only for certain project types
+# just uncomment this `project_type_tags` section and include all the
+# project types supported by the step. If the step can be used for all
+# project types then you can just remove this section.
+# If no `project_type_tags` specified (or specified as an empty array)
+# that means the step can be used for any project type.
+# You can find more information about project type tags in the Step Development Guideline:
+# https://github.com/bitrise-io/bitrise/blob/master/_docs/step-development-guideline.md
+#
+# project_type_tags:
+#   - ios
+#   - macos
+#   - android
+#   - xamarin
+#   - react-native
+#   - cordova
+#   - ionic
+
+# Type tags are used for categorizing steps, for easier step discovery in Step Libraries.
+# You can find more information about type tags in the Step Development Guideline:
+# https://github.com/bitrise-io/bitrise/blob/master/_docs/step-development-guideline.md
+type_tags:
+  - artifact-info
+
+is_requires_admin_user: true
+is_always_run: false
+is_skippable: true
+run_if: ""
+
+deps:
+  brew:
+  - name: jq
+  - name: git
+  - name: wget
+  apt_get:
+  - name: jq
+  - name: git
+  - name: wget
+
+
+toolkit:
+  bash:
+    entry_file: step.sh
+
+
+inputs:
+  - sonar_token: $SONAR_TOKEN
+    opts:
+      title: "SonarQube Token"
+      summary: API token from sonar qube provider
+      description: |
+        API token from sonar qube provider
+      is_expand: true
+      is_required: true
+      value_options: []
+  - organisation_key:
+    opts:
+      title: "Organisation Key"
+      summary: "Sonarcloud organisation key"
+      is_required: true
+  - project_key:
+    opts:
+      title: "Project Key"
+      summary: "Sonarcloud project key"
+      is_required: true
+  - is_debug: "false"
+    opts:
+      title: Print all executed shell commands to a build log?
+      description: |-
+        Whether trace of shell commands should be printed to a build log.
+        In addition, debug logging will be enabled for SonarQube (by adding the -X argument).
+ 
+        Options:
+        * "true"
+        * "false" (default)
+      is_expand: false
+      value_options: ["true", "false"]
