@@ -33,10 +33,10 @@ max_attempts=5
 function check {
 	[[ ${counter} -eq ${max_attempts} ]] && exit 1
 	wget -qO "$BITRISE_DEPLOY_DIR/task_detail.json" --header "$HEADER" "https://sonarcloud.io/api/ce/task?organization=$organisation_key&id=$TASK_ID"
-	if [ $(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq '.task.status == "SUCCESS"') ]
+	if [ $(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e '.task.status == "SUCCESS"') ]
 	then
 		echo "get task detail"
-		ANALYSIS_ID=$(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq .task.analysisId | sed 's/"//g')
+		ANALYSIS_ID=$(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e .task.analysisId | sed 's/"//g')
 	else
 		echo "analysis in progress"
 		sleep 3
@@ -48,7 +48,7 @@ function getByBranch {
 	BRANCH_URL="https://sonarcloud.io/api/qualitygates/project_status?projectKey=$project_key&organization=$organisation_key&branch=$BRANCH"
 	echo "wget -qO- --header $HEADER $BRANCH_URL"
 	wget -qO "$BITRISE_DEPLOY_DIR/quality_gate.json" --header "$HEADER" "$BRANCH_URL"
-	cat ${BITRISE_DEPLOY_DIR}/quality_gate.json | jq '.projectStatus.status != "ERROR"'
+	cat ${BITRISE_DEPLOY_DIR}/quality_gate.json | jq -e '.projectStatus.status != "ERROR"'
 }
 
 if:IsSet() {
