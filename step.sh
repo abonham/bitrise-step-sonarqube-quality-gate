@@ -11,7 +11,12 @@ then
 	popd
 else
 	echo -e "no scanner report"
-	exit 1
+	if [ "$fail_on_missing_task" -eq "true" ]
+	then
+	  exit 1
+	else
+	  exit 0
+	fi
 fi
 
 if [ -z "$TASK_ID" ]

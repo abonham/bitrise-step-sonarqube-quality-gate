@@ -86,6 +86,18 @@ inputs:
       title: "Project Key"
       summary: "Sonarcloud project key"
       is_required: true
+  - fail_on_missing_task: "false"
+    opts:
+      title: Fail build
+      description: |-
+        Should the build fail if there is no sonar scanner output?
+ 
+        Options:
+        * "true"
+        * "false" (default)
+      is_expand: false
+      value_options: ["true", "false"]
+
   - is_debug: "false"
     opts:
       title: Print all executed shell commands to a build log?
