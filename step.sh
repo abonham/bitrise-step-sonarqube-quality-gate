@@ -49,6 +49,15 @@ function getByBranch {
 	echo "wget -qO- --header $HEADER $BRANCH_URL"
 	wget -qO "$BITRISE_DEPLOY_DIR/quality_gate.json" --header "$HEADER" "$BRANCH_URL"
 	cat ${BITRISE_DEPLOY_DIR}/quality_gate.json | jq -e '.projectStatus.status != "ERROR"'
+	if [ $? -eq 0 ]
+	then
+	  echo "Quality gate PASSED"
+	else
+	  echo "Quality gate FAILED"
+	  echo
+	  jq . "$BITRISE_DEPLOY_DIR/quality_gate.json"
+	  exit 1
+	fi
 }
 
 if:IsSet() {
