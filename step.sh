@@ -30,6 +30,7 @@ HEADER="Authorization: Basic $(echo -n "$SONAR_TOKEN:" | base64)"
 
 counter=0
 max_attempts=5
+analysis_ready=false
 function check {
 	[[ ${counter} -eq ${max_attempts} ]] && exit 1
 	wget -qO "$BITRISE_DEPLOY_DIR/task_detail.json" --header "$HEADER" "https://sonarcloud.io/api/ce/task?organization=$organisation_key&id=$TASK_ID"
@@ -37,6 +38,7 @@ function check {
 	then
 		echo "get task detail"
 		ANALYSIS_ID=$(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e .task.analysisId | sed 's/"//g')
+		analysis_ready=true
 	else
 		echo "analysis in progress"
 		sleep 3
@@ -60,13 +62,9 @@ function getByBranch {
 	fi
 }
 
-if:IsSet() {
-  [[ ${!1-x} == x ]] && return 1 || return 0
-}
-
 echo "fetch quality gate result for ${BRANCH}, store in $BITRISE_DEPLOY_DIR"
 
-until if:IsSet ANALYSIS_ID
+until [[ $analysis_ready ]]
 do
 	echo "checking status - attempt $counter"
 	check
