@@ -32,18 +32,21 @@ counter=0
 max_attempts=5
 analysis_ready=false
 function check {
-	[[ ${counter} -eq ${max_attempts} ]] && exit 1
-	wget -qO "$BITRISE_DEPLOY_DIR/task_detail.json" --header "$HEADER" "https://sonarcloud.io/api/ce/task?organization=$organisation_key&id=$TASK_ID"
-	if [ $(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e '.task.status == "SUCCESS"') ]
-	then
-		echo "get task detail"
-		ANALYSIS_ID=$(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e .task.analysisId | sed 's/"//g')
-		analysis_ready=true
-	else
-		echo "analysis in progress"
-		sleep 3
-		counter=$(($counter+1))
-	fi
+	until [[ ${counter} -eq ${max_attempts} ]]
+	do
+		wget -qO "$BITRISE_DEPLOY_DIR/task_detail.json" --header "$HEADER" "https://sonarcloud.io/api/ce/task?organization=$organisation_key&id=$TASK_ID"
+		if [ $(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e '.task.status == "SUCCESS"') ]
+		then
+			echo "get task detail"
+			ANALYSIS_ID=$(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e .task.analysisId | sed 's/"//g')
+			analysis_ready=true
+			break
+		else
+			echo "analysis in progress"
+			sleep 3
+			counter=$(($counter+1))
+		fi
+	done
 }
 
 function getByBranch {
