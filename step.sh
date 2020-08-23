@@ -32,8 +32,9 @@ counter=0
 max_attempts=5
 analysis_ready=false
 function check {
-	until [[ ${counter} -eq ${max_attempts} ]]
+	until [[ $counter -eq 5 ]]
 	do
+		echo "checking status - attempt $counter"
 		wget -qO "$BITRISE_DEPLOY_DIR/task_detail.json" --header "$HEADER" "https://sonarcloud.io/api/ce/task?organization=$organisation_key&id=$TASK_ID"
 		if [ $(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e '.task.status == "SUCCESS"') ]
 		then
@@ -65,13 +66,14 @@ function getByBranch {
 	fi
 }
 
-echo "fetch quality gate result for ${BRANCH}, store in $BITRISE_DEPLOY_DIR"
+echo "fetch quality gate result for $BRANCH, store in $BITRISE_DEPLOY_DIR"
+	
+check
 
-until [[ $analysis_ready ]]
-do
-	echo "checking status - attempt $counter"
-	check
-done
-
-echo "get branch status"
-getByBranch
+if [[ $analysis_ready ]]; then
+	echo "get branch status"
+	getByBranch
+else
+	echo "Quality gate did not respond in time"
+	exit 0
+fi
