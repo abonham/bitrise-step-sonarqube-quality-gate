@@ -84,5 +84,5 @@ else
 fi
 
 if [[ ! -z "$$BITRISE_PULL_REQUEST" ]]; then
-	echo "https://sonarcloud.io/dashboard?id=$organisation_key&pullRequest=$BITRISE_PULL_REQUEST"
+	echo "https://sonarcloud.io/dashboard?id=$project_key&pullRequest=$BITRISE_PULL_REQUEST"
 fi
