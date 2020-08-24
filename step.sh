@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-[[ "$is_debug" -eq "true" ]] && set -ux
+[[ "$is_debug" -eq "true" ]] && set -x
 
 BRANCH=${BITRISE_GIT_BRANCH-`git branch --show-current`}
 
@@ -51,8 +51,13 @@ function check {
 }
 
 function getByBranch {
+	if [[ -z $BITRISE_PULL_REQUEST ]]; then
+	BRANCH_URL="https://sonarcloud.io/api/qualitygates/project_status?projectKey=$project_key&organization=$organisation_key&id=$BITRISE_PULL_REQUEST"
+	else
 	BRANCH_URL="https://sonarcloud.io/api/qualitygates/project_status?projectKey=$project_key&organization=$organisation_key&branch=$BRANCH"
-	echo "wget -qO- --header $HEADER $BRANCH_URL"
+	fi
+	
+	echo "wget -qO- --header '$HEADER' '$BRANCH_URL'"
 	wget -qO "$BITRISE_DEPLOY_DIR/quality_gate.json" --header "$HEADER" "$BRANCH_URL"
 	cat ${BITRISE_DEPLOY_DIR}/quality_gate.json | jq -e '.projectStatus.status != "ERROR"'
 	if [ $? -eq 0 ]
@@ -75,5 +80,9 @@ if [[ $analysis_ready ]]; then
 	getByBranch
 else
 	echo "Quality gate did not respond in time"
-	exit 0
+	exit 1
+fi
+
+if [[ ! -z "$$BITRISE_PULL_REQUEST" ]]; then
+	echo "https://sonarcloud.io/dashboard?id=$organisation_key&pullRequest=$BITRISE_PULL_REQUEST"
 fi
