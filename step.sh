@@ -51,7 +51,7 @@ function check {
 }
 
 function getByBranch {
-	if [[ -z $BITRISE_PULL_REQUEST ]]; then
+	if [[ ! -z $BITRISE_PULL_REQUEST ]]; then
 	BRANCH_URL="https://sonarcloud.io/api/qualitygates/project_status?projectKey=$project_key&organization=$organisation_key&id=$BITRISE_PULL_REQUEST"
 	else
 	BRANCH_URL="https://sonarcloud.io/api/qualitygates/project_status?projectKey=$project_key&organization=$organisation_key&branch=$BRANCH"
