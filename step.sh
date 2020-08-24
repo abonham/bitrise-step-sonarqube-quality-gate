@@ -36,7 +36,7 @@ function check {
 	do
 		echo "checking status - attempt $counter"
 		wget -qO "$BITRISE_DEPLOY_DIR/task_detail.json" --header "$HEADER" "https://sonarcloud.io/api/ce/task?organization=$organisation_key&id=$TASK_ID"
-		if [ $(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e '.task.status == "SUCCESS"') ]
+		if [[ $(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e '.task.status == "SUCCESS"') == "true" ]]
 		then
 			echo "get task detail"
 			ANALYSIS_ID=$(cat "$BITRISE_DEPLOY_DIR/task_detail.json" | jq -e .task.analysisId | sed 's/"//g')
