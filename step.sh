@@ -50,6 +50,12 @@ function check {
 	done
 }
 
+function printPRUrl {
+	if [[ ! -z "$$BITRISE_PULL_REQUEST" ]]; then
+		echo "https://sonarcloud.io/dashboard?id=$project_key&pullRequest=$BITRISE_PULL_REQUEST"
+	fi
+}
+
 function getByBranch {
 	if [[ ! -z $BITRISE_PULL_REQUEST ]]; then
 	BRANCH_URL="https://sonarcloud.io/api/qualitygates/project_status?projectKey=$project_key&organization=$organisation_key&id=$BITRISE_PULL_REQUEST"
@@ -63,10 +69,11 @@ function getByBranch {
 	if [ $? -eq 0 ]
 	then
 	  echo "Quality gate PASSED"
+	  printPRUrl
 	else
 	  echo "Quality gate FAILED"
-	  echo
-	  jq . "$BITRISE_DEPLOY_DIR/quality_gate.json"
+	  echo $(jq . "$BITRISE_DEPLOY_DIR/quality_gate.json")
+	  printPRUrl
 	  exit 1
 	fi
 }
@@ -83,6 +90,3 @@ else
 	exit 1
 fi
 
-if [[ ! -z "$$BITRISE_PULL_REQUEST" ]]; then
-	echo "https://sonarcloud.io/dashboard?id=$project_key&pullRequest=$BITRISE_PULL_REQUEST"
-fi
